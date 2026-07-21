@@ -335,6 +335,10 @@ std::vector<PlaybackDevice> Player::listPlaybackDevices()
         return ret;
     }
 
+#if defined(MA_HAS_ALSA)
+    const bool isAlsaBackend = context.backend == ma_backend_alsa;
+#endif
+
     // Loop over each device info and do something with it. Here we just print
     // the name with their index. You may want
     // to give the user the opportunity to choose which device they'd prefer.
@@ -344,6 +348,30 @@ std::vector<PlaybackDevice> Player::listPlaybackDevices()
         //        pPlaybackInfos[i].isDefault ? " X" : "-",
         //        i,
         //        pPlaybackInfos[i].name);
+        // ALSA advertises its software plugin PCMs alongside real hardware:
+        // rate converters, upmix/downmix, the null sink, the OSS and JACK
+        // bridges. They are valid PCM names but not things anyone means by "an
+        // output device", and they bury the actual cards in a list several
+        // times longer than the one the OS or a DAW shows. Keep the hardware
+        // (`hw:`/`plughw:`) and `default`, which is the route to whatever sound
+        // server is running. The index is still the *unfiltered* position, so
+        // device ids stay consistent with changeDevice() and with
+        // listPlaybackDeviceChannels().
+#if defined(MA_HAS_ALSA)
+        if (isAlsaBackend)
+        {
+            const char *pcm = pPlaybackInfos[i].id.alsa;
+            // Every card-qualified PCM name carries a colon — miniaudio's
+            // ":card,device" short form, and the longer "hw:0,0" /
+            // "sysdefault:CARD=PCH" spellings alike. The software plugins are
+            // always bare words ("null", "jack", "pulse", "upmix", ...), so the
+            // colon is what separates a real output from a filter chain.
+            const bool isHardware = strchr(pcm, ':') != NULL;
+            const bool isDefault = strcmp(pcm, "default") == 0;
+            if (!isHardware && !isDefault)
+                continue;
+        }
+#endif
         PlaybackDevice cd;
         cd.name = strdup(pPlaybackInfos[i].name);
         cd.isDefault = pPlaybackInfos[i].isDefault;
