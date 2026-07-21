@@ -648,6 +648,10 @@ class FlutterSoLoudWeb extends FlutterSoLoud {
     );
   }
 
+  /// Web Audio output is always stereo.
+  @override
+  int getDeviceChannels() => 2;
+
   @override
   bool getIsValidVoiceHandle(SoundHandle handle) {
     return wasmGetIsValidVoiceHandle(handle.id) == 1;

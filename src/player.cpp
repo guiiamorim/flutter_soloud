@@ -5,6 +5,7 @@
 #include "soloud/include/soloud.h"
 #include "soloud_wav.h"
 // #include "soloud_thread.h"
+#include "soloud_internal.h"
 #include "soloud_wavstream.h"
 #include "synth/basic_wave.h"
 
@@ -1319,6 +1320,13 @@ void Player::setPanAbsolute(SoLoud::handle handle, float panLeft, float panRight
     panLeft = std::clamp(panLeft, -1.0f, 1.0f);
     panRight = std::clamp(panRight, -1.0f, 1.0f);
     soloud.setPanAbsolute(handle, panLeft, panRight);
+}
+
+unsigned int Player::getDeviceChannels()
+{
+    // Always linkable: the backend defines this in both its miniaudio and
+    // no-miniaudio branches, so no build-time guard is needed here.
+    return SoLoud::miniaudio_getDeviceChannels();
 }
 
 void Player::setChannelVolume(SoLoud::handle handle, unsigned int channel, float volume)

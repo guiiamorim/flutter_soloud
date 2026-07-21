@@ -85,6 +85,13 @@ namespace SoLoud
 	// AudioAttributes externally (e.g. via audio_session). Must be called before
 	// init. No-op effect on non-Android backends.
 	void miniaudio_setAndroidAAudioAttributes(bool aManaged);
+	// The channel count the *hardware* was actually opened with, which is not
+	// necessarily the count SoLoud mixes at: miniaudio happily accepts a request
+	// for more channels than the device has and converts down to its internal
+	// format. Callers that route audio to specific output channels need to know
+	// the difference, otherwise channels they believe are discrete are being
+	// folded back into the front pair. Returns 0 when no device is open.
+	unsigned int miniaudio_getDeviceChannels();
 
 	// nosound back-end initialization call
 	result nosound_init(SoLoud::Soloud* aSoloud, unsigned int aFlags = Soloud::CLIP_ROUNDOFF, unsigned int aSamplerate = 44100, unsigned int aBuffer = 2048, unsigned int aChannels = 2);

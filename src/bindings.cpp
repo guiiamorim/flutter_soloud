@@ -1119,6 +1119,18 @@ FFI_PLUGIN_EXPORT void setChannelVolume(unsigned int handle,
   player.get()->setChannelVolume(handle, channel, volume);
 }
 
+/// The channel count the hardware was actually opened with.
+///
+/// Differs from the count requested at init when the device cannot provide it:
+/// the extra channels are then folded back into the device's real ones rather
+/// than being discrete outputs. Callers routing to specific outputs must check
+/// this before trusting a routing assignment. Returns 0 if no device is open.
+FFI_PLUGIN_EXPORT unsigned int getDeviceChannels() {
+  if (player.get() == nullptr || !player.get()->isInited())
+    return 0;
+  return player.get()->getDeviceChannels();
+}
+
 /// Check if a handle is still valid.
 ///
 /// [handle] handle to check

@@ -38,6 +38,13 @@ namespace SoLoud
     {
         return NOT_IMPLEMENTED;
     }
+
+    // Stubbed so the symbol exists for callers regardless of backend, matching
+    // how the low-latency/AAudio setters stay linkable in this build.
+    unsigned int miniaudio_getDeviceChannels()
+    {
+        return 0;
+    }
 }
 
 #else
@@ -190,6 +197,20 @@ namespace SoLoud
             aManaged ? ma_aaudio_usage_media : ma_aaudio_usage_default;
         gMiniaudioAAudioContentType =
             aManaged ? ma_aaudio_content_type_music : ma_aaudio_content_type_default;
+    }
+
+    unsigned int miniaudio_getDeviceChannels()
+    {
+        // Deliberately not gDeviceStopped: that tracks whether the device is
+        // *started*, so it is true for an inited-but-paused device that still
+        // has a perfectly good channel count to report.
+        if (ma_device_get_state(&gDevice) == ma_device_state_uninitialized)
+            return 0;
+        // internalChannels is the hardware's own channel count. gDevice.playback
+        // .channels is only what we *asked* for — miniaudio accepts a request
+        // wider than the device and converts down, so comparing the two is the
+        // only way to tell a genuinely discrete output from a folded one.
+        return gDevice.playback.internalChannels;
     }
 
     void soloud_miniaudio_audiomixer(ma_device* pDevice, void* pOutput, const void* pInput, ma_uint32 frameCount)

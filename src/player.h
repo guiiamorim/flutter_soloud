@@ -372,6 +372,13 @@ public:
   /// @param panRight value for the right pan.
   void setPanAbsolute(SoLoud::handle handle, float panLeft, float panRight);
 
+  /// @brief The channel count the hardware was actually opened with.
+  /// Not necessarily the count SoLoud mixes at: a request for more channels
+  /// than the device has is accepted and converted down, so a caller routing
+  /// audio to specific outputs must check this to know whether those outputs
+  /// are really discrete. Returns 0 when no device is open.
+  unsigned int getDeviceChannels();
+
   /// @brief Set how much this voice contributes to a single output channel.
   /// Lets a voice be routed to a subset of a multichannel device's outputs
   /// (e.g. a stereo stem sent only to outputs 3/4), which channel expansion

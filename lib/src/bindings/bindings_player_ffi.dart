@@ -1332,6 +1332,20 @@ class FlutterSoLoudFfi extends FlutterSoLoud {
   late final _setChannelVolume = _setChannelVolumePtr
       .asFunction<void Function(int, int, double)>();
 
+  /// The channel count the hardware was actually opened with, or 0 if no
+  /// device is open.
+  @override
+  int getDeviceChannels() {
+    return _getDeviceChannels();
+  }
+
+  late final _getDeviceChannelsPtr =
+      _lookup<ffi.NativeFunction<ffi.UnsignedInt Function()>>(
+        'getDeviceChannels',
+      );
+  late final _getDeviceChannels = _getDeviceChannelsPtr
+      .asFunction<int Function()>();
+
   /// Check if a handle is still valid.
   ///
   /// [handle] handle to check

@@ -2088,6 +2088,20 @@ interface class SoLoud {
   /// therefore how many output pairs are available for routing.
   Channels get channels => _channels;
 
+  /// The number of channels the *hardware* was actually opened with, or 0 if
+  /// the engine is not initialized.
+  ///
+  /// This can be lower than [channels]: asking [init] for more channels than
+  /// the device provides succeeds, and the surplus is folded back down into the
+  /// channels it does have. Anything relying on [setChannelVolume] to keep
+  /// audio off a given output must compare the two — when this is smaller, the
+  /// "separate" outputs are not separate at all and the audio is still audible
+  /// on the device's real channels.
+  int get deviceChannels {
+    if (!isInitialized) return 0;
+    return SoLoudController().soLoudFFI.getDeviceChannels();
+  }
+
   /// Check if the [handle] is still valid.
   ///
   /// Returns `true` if the sound instance identified by its [handle] is

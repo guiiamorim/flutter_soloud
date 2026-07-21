@@ -546,6 +546,11 @@ abstract class FlutterSoLoud {
   @mustBeOverridden
   void setChannelVolume(SoundHandle handle, int channel, double volume);
 
+  /// The channel count the hardware was actually opened with, or 0 if no
+  /// device is open.
+  @mustBeOverridden
+  int getDeviceChannels();
+
   /// Check if the [handle] is still valid.
   ///
   /// [handle] handle to check.
