@@ -125,9 +125,18 @@ namespace SoLoud
 	}
 
 	void Soloud::setChannelVolume(handle aVoiceHandle, unsigned int aChannel, float aVolume)
-	{		
+	{
+		// mChannelVolume is indexed by *output* channel: panAndExpand() reads
+		// mChannelVolume[k] for k in 0..(engine output channels - 1), scaling
+		// what this voice contributes to each speaker. The guard here used to
+		// test mVoice[ch]->mChannels, the voice's *source* channel count, which
+		// is a different quantity — it made every call above the source's own
+		// channel count a silent no-op. That blocked the main use for this
+		// setter: keeping a stereo voice (mChannels == 2) off channels 2..n of a
+		// multichannel device, since 2->4 / 2->6 / 2->8 expansion copies the
+		// source into every output pair. Bound by the engine's output channels.
 		FOR_ALL_VOICES_PRE
-			if (mVoice[ch]->mChannels > aChannel)
+			if (aChannel < mChannels)
 			{
 				mVoice[ch]->mChannelVolume[aChannel] = aVolume;
 			}

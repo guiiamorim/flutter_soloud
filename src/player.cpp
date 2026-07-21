@@ -1315,10 +1315,19 @@ void Player::setPan(SoLoud::handle handle, float pan)
 }
 
 void Player::setPanAbsolute(SoLoud::handle handle, float panLeft, float panRight)
-{ 
+{
     panLeft = std::clamp(panLeft, -1.0f, 1.0f);
     panRight = std::clamp(panRight, -1.0f, 1.0f);
     soloud.setPanAbsolute(handle, panLeft, panRight);
+}
+
+void Player::setChannelVolume(SoLoud::handle handle, unsigned int channel, float volume)
+{
+    // Only the lower bound is clamped: unlike a pan weight, a channel volume is
+    // a gain and may legitimately exceed 1.
+    if (volume < 0.0f)
+        volume = 0.0f;
+    soloud.setChannelVolume(handle, channel, volume);
 }
 
 bool Player::isValidHandle(SoLoud::handle handle)

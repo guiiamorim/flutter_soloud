@@ -638,6 +638,16 @@ class FlutterSoLoudWeb extends FlutterSoLoud {
     return wasmSetPanAbsolute(handle.id, panLeft, panRight);
   }
 
+  /// No-op on web: the Web Audio output is stereo, so there are no additional
+  /// output channels to route to. Implemented as a no-op rather than a call
+  /// into wasm so the prebuilt module needs no rebuild for this symbol.
+  @override
+  void setChannelVolume(SoundHandle handle, int channel, double volume) {
+    _log.finest(
+      () => 'setChannelVolume() is not supported on web (stereo output only)',
+    );
+  }
+
   @override
   bool getIsValidVoiceHandle(SoundHandle handle) {
     return wasmGetIsValidVoiceHandle(handle.id) == 1;

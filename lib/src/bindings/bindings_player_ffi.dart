@@ -1313,6 +1313,25 @@ class FlutterSoLoudFfi extends FlutterSoLoud {
   late final _setPanAbsolute = _setPanAbsolutePtr
       .asFunction<void Function(int, double, double)>();
 
+  /// Set how much a voice contributes to a single output channel.
+  ///
+  /// [handle] the sound handle.
+  /// [channel] the output channel index, 0-based.
+  /// [volume] the volume for that channel (0 silences it).
+  @override
+  void setChannelVolume(SoundHandle handle, int channel, double volume) {
+    return _setChannelVolume(handle.id, channel, volume);
+  }
+
+  late final _setChannelVolumePtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Void Function(ffi.UnsignedInt, ffi.UnsignedInt, ffi.Double)
+        >
+      >('setChannelVolume');
+  late final _setChannelVolume = _setChannelVolumePtr
+      .asFunction<void Function(int, int, double)>();
+
   /// Check if a handle is still valid.
   ///
   /// [handle] handle to check

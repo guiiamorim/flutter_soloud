@@ -372,6 +372,17 @@ public:
   /// @param panRight value for the right pan.
   void setPanAbsolute(SoLoud::handle handle, float panLeft, float panRight);
 
+  /// @brief Set how much this voice contributes to a single output channel.
+  /// Lets a voice be routed to a subset of a multichannel device's outputs
+  /// (e.g. a stereo stem sent only to outputs 3/4), which channel expansion
+  /// would otherwise copy to every output pair. Note that setPan/setPanAbsolute
+  /// overwrite channels 0/1, so apply this after them.
+  /// @param handle the sound handle.
+  /// @param channel the output channel index, 0-based.
+  /// @param volume the volume for that channel (0 silences it).
+  void setChannelVolume(SoLoud::handle handle, unsigned int channel,
+                        float volume);
+
   /// @brief Check if a handle is still valid.
   /// @param handle handle to check.
   /// @return true if it still exists.

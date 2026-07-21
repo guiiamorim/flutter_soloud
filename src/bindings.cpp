@@ -1102,6 +1102,23 @@ FFI_PLUGIN_EXPORT void setPanAbsolute(unsigned int handle, double panLeft,
   player.get()->setPanAbsolute(handle, panLeft, panRight);
 }
 
+/// Set how much a voice contributes to a single output channel.
+///
+/// Routes a voice to a subset of a multichannel device's outputs: channel
+/// expansion copies a stereo source into every output pair, so silencing the
+/// unwanted channels is what confines it to one pair.
+/// Note that setPan/setPanAbsolute overwrite channels 0/1, so apply this after.
+///
+/// [handle] the sound handle.
+/// [channel] the output channel index, 0-based.
+/// [volume] the volume for that channel (0 silences it).
+FFI_PLUGIN_EXPORT void setChannelVolume(unsigned int handle,
+                                        unsigned int channel, double volume) {
+  if (player.get() == nullptr || !player.get()->isInited())
+    return;
+  player.get()->setChannelVolume(handle, channel, volume);
+}
+
 /// Check if a handle is still valid.
 ///
 /// [handle] handle to check

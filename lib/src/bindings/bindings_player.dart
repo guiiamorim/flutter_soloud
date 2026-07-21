@@ -538,6 +538,14 @@ abstract class FlutterSoLoud {
   @mustBeOverridden
   void setPanAbsolute(SoundHandle handle, double panLeft, double panRight);
 
+  /// Set how much [handle] contributes to a single output channel.
+  ///
+  /// [handle] the sound handle.
+  /// [channel] the output channel index, 0-based.
+  /// [volume] the volume for that channel (0 silences it).
+  @mustBeOverridden
+  void setChannelVolume(SoundHandle handle, int channel, double volume);
+
   /// Check if the [handle] is still valid.
   ///
   /// [handle] handle to check.

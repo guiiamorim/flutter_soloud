@@ -2030,6 +2030,64 @@ interface class SoLoud {
     );
   }
 
+  /// Sets how much [handle] contributes to a single output channel.
+  ///
+  /// This is what routes a voice to a subset of a multichannel device's
+  /// outputs. When the engine is initialized with more channels than a source
+  /// has (see [init]'s `channels`), the mixer *expands* the source into every
+  /// output pair — a stereo voice on a 4-channel device is copied to both
+  /// outputs 1/2 and 3/4. Silencing the unwanted channels is what confines a
+  /// voice to one pair:
+  ///
+  /// ```dart
+  /// // Send this stem to outputs 3/4 only.
+  /// SoLoud.instance.setChannelVolume(handle, 0, 0);
+  /// SoLoud.instance.setChannelVolume(handle, 1, 0);
+  /// SoLoud.instance.setChannelVolume(handle, 2, 1);
+  /// SoLoud.instance.setChannelVolume(handle, 3, 1);
+  /// ```
+  ///
+  /// Changes are ramped over one buffer rather than applied instantly, so
+  /// re-routing a playing voice does not click.
+  ///
+  /// Note that [setPan] and [setPanAbsolute] overwrite channels 0 and 1, so
+  /// call this *after* them if you use both.
+  ///
+  /// Not supported on web, where the output is always stereo: the call is a
+  /// no-op there.
+  ///
+  /// [handle] the sound handle.
+  ///
+  /// [channel] the output channel index, 0-based. Values at or above the
+  /// engine's output channel count are ignored.
+  ///
+  /// [volume] the volume for that channel. 0 silences it; unlike a pan weight
+  /// this is a gain and may exceed 1.
+  ///
+  /// Throws [SoLoudNotInitializedException] if the engine is not initialized.
+  void setChannelVolume(SoundHandle handle, int channel, double volume) {
+    if (!isInitialized) {
+      throw const SoLoudNotInitializedException();
+    }
+    assert(
+      channel >= 0 && channel < _channels.count,
+      'The channel argument must be in range 0 to ${_channels.count - 1} '
+      'inclusive for an engine initialized with $_channels!',
+    );
+    assert(volume >= 0, 'The volume argument must be >= 0!');
+    return SoLoudController().soLoudFFI.setChannelVolume(
+      handle,
+      channel,
+      volume < 0 ? 0 : volume,
+    );
+  }
+
+  /// The number of output channels the engine was initialized with.
+  ///
+  /// Useful to know how many channels [setChannelVolume] can address, and
+  /// therefore how many output pairs are available for routing.
+  Channels get channels => _channels;
+
   /// Check if the [handle] is still valid.
   ///
   /// Returns `true` if the sound instance identified by its [handle] is
