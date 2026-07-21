@@ -53,6 +53,14 @@ public:
 
   std::vector<PlaybackDevice> listPlaybackDevices();
 
+  /// @brief Max output channels each playback device supports, indexed by the
+  /// same device index `listPlaybackDevices()` reports as `id`.
+  /// `ma_context_get_devices()` only fills in names and ids, so the channel
+  /// count needs a per-device `ma_context_get_device_info()`. Without it a
+  /// caller cannot tell a stereo output from an 8-out interface, and asking to
+  /// open more channels than a device has silently folds them back down.
+  std::vector<unsigned int> listPlaybackDeviceChannels();
+
   /// @brief Set a function callback triggered when a voice is stopped/ended.
   void setVoiceEndedCallback(void (*voiceEndedCallback)(unsigned int *));
 

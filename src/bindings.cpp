@@ -267,6 +267,21 @@ FFI_PLUGIN_EXPORT enum PlayerErrors changeDevice(int deviceID) {
   return player.get()->changeDevice(deviceID);
 }
 
+/// Max output channels per playback device, written into [channels] indexed by
+/// the device index reported as `id` by `listPlaybackDevices`.
+///
+/// Lets a caller tell a stereo output from a multi-out interface before opening
+/// it — necessary because requesting more channels than a device has succeeds
+/// and folds the extra ones back down. 0 means the backend didn't report it.
+FFI_PLUGIN_EXPORT void listPlaybackDeviceChannels(int *channels,
+                                                  int *n_devices) {
+  std::vector<unsigned int> c = player.get()->listPlaybackDeviceChannels();
+  for (int i = 0; i < (int)c.size(); i++) {
+    channels[i] = (int)c[i];
+  }
+  *n_devices = (int)c.size();
+}
+
 /// List playback devices.
 FFI_PLUGIN_EXPORT void listPlaybackDevices(char **devicesName, int **deviceId,
                                            int **isDefault, int *n_devices) {

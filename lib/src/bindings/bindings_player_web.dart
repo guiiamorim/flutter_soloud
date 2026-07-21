@@ -652,6 +652,10 @@ class FlutterSoLoudWeb extends FlutterSoLoud {
   @override
   int getDeviceChannels() => 2;
 
+  /// Web exposes no device enumeration, so there are no per-device widths.
+  @override
+  List<int> listPlaybackDeviceChannels() => const [];
+
   @override
   bool getIsValidVoiceHandle(SoundHandle handle) {
     return wasmGetIsValidVoiceHandle(handle.id) == 1;

@@ -1339,6 +1339,32 @@ class FlutterSoLoudFfi extends FlutterSoLoud {
     return _getDeviceChannels();
   }
 
+  /// Max output channels per playback device, indexed by the device `id`
+  /// reported by [listPlaybackDevices]. 0 where the backend didn't report it.
+  @override
+  List<int> listPlaybackDeviceChannels() {
+    // 50 devices matches the cap the name/id enumeration above allocates for.
+    final channels = calloc<ffi.Int>(ffi.sizeOf<ffi.Int>() * 50);
+    final nDevices = calloc<ffi.Int>();
+    try {
+      _listPlaybackDeviceChannels(channels, nDevices);
+      return [for (var i = 0; i < nDevices.value; i++) (channels + i).value];
+    } finally {
+      calloc
+        ..free(channels)
+        ..free(nDevices);
+    }
+  }
+
+  late final _listPlaybackDeviceChannelsPtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Void Function(ffi.Pointer<ffi.Int>, ffi.Pointer<ffi.Int>)
+        >
+      >('listPlaybackDeviceChannels');
+  late final _listPlaybackDeviceChannels = _listPlaybackDeviceChannelsPtr
+      .asFunction<void Function(ffi.Pointer<ffi.Int>, ffi.Pointer<ffi.Int>)>();
+
   late final _getDeviceChannelsPtr =
       _lookup<ffi.NativeFunction<ffi.UnsignedInt Function()>>(
         'getDeviceChannels',

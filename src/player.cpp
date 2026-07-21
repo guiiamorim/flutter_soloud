@@ -270,6 +270,44 @@ PlayerErrors Player::changeDevice(int deviceID)
 }
 
 // List available playback devices.
+std::vector<unsigned int> Player::listPlaybackDeviceChannels()
+{
+    std::vector<unsigned int> ret;
+    ma_context context;
+    ma_device_info *pCaptureInfos;
+    ma_uint32 playbackCount, captureCount;
+    if (ma_context_init(NULL, 0, NULL, &context) != MA_SUCCESS)
+        return ret;
+    if (ma_context_get_devices(&context, &pPlaybackInfos, &playbackCount,
+                               &pCaptureInfos, &captureCount) != MA_SUCCESS)
+    {
+        ma_context_uninit(&context);
+        return ret;
+    }
+    for (ma_uint32 i = 0; i < playbackCount; i++)
+    {
+        // The enumeration above carries no format info; this second call is
+        // what populates nativeDataFormats for a single device.
+        ma_device_info info;
+        unsigned int maxChannels = 0;
+        if (ma_context_get_device_info(&context, ma_device_type_playback,
+                                       &pPlaybackInfos[i].id,
+                                       &info) == MA_SUCCESS)
+        {
+            for (ma_uint32 j = 0; j < info.nativeDataFormatCount; j++)
+            {
+                if (info.nativeDataFormats[j].channels > maxChannels)
+                    maxChannels = info.nativeDataFormats[j].channels;
+            }
+        }
+        // 0 means the backend wouldn't say; callers treat that as "assume
+        // stereo" rather than offering routing that may not exist.
+        ret.push_back(maxChannels);
+    }
+    ma_context_uninit(&context);
+    return ret;
+}
+
 std::vector<PlaybackDevice> Player::listPlaybackDevices()
 {
     // printf("***************** LIST DEVICES START\n");

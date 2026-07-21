@@ -551,6 +551,11 @@ abstract class FlutterSoLoud {
   @mustBeOverridden
   int getDeviceChannels();
 
+  /// Max output channels per playback device, indexed by the device `id`
+  /// reported by [listPlaybackDevices]. 0 where the backend didn't report it.
+  @mustBeOverridden
+  List<int> listPlaybackDeviceChannels();
+
   /// Check if the [handle] is still valid.
   ///
   /// [handle] handle to check.

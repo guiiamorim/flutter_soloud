@@ -492,6 +492,22 @@ interface class SoLoud {
     return _controller.soLoudFFI.listPlaybackDevices();
   }
 
+  /// Max output channels each playback device supports, keyed by the device id
+  /// from [listPlaybackDevices].
+  ///
+  /// Needed to know how many *discrete* output pairs a device can offer before
+  /// opening it: [init] accepts a channel count larger than the hardware has
+  /// and folds the surplus back down, so routing decided without this can send
+  /// audio to outputs that quietly land on the front pair. A device missing
+  /// from the map, or reporting 0, did not tell the backend its width — treat
+  /// that as stereo rather than assuming more.
+  ///
+  /// Returns an empty map on web, which has no device enumeration.
+  Map<int, int> playbackDeviceChannels() {
+    final channels = _controller.soLoudFFI.listPlaybackDeviceChannels();
+    return {for (var i = 0; i < channels.length; i++) i: channels[i]};
+  }
+
   /// Stops the engine and disposes of all resources, including sounds.
   ///
   /// This method is meant to be called when exiting the app. For example
